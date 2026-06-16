@@ -1,13 +1,37 @@
 const buttons = document.querySelectorAll('[data-lang]');
 const translatable = document.querySelectorAll('[data-ja][data-ko]');
+const ariaTranslatable = document.querySelectorAll('[data-aria-ja][data-aria-ko]');
+const supportedLanguages = ['ko', 'ja'];
+const pageTitle = {
+  ko: 'Seiga / 서아 링크 모음',
+  ja: 'Seiga / 西雅 リンク集',
+};
+
+function normalizeLanguage(lang) {
+  return supportedLanguages.includes(lang) ? lang : 'ko';
+}
 
 function setLanguage(lang) {
-  document.documentElement.lang = lang;
-  buttons.forEach((button) => button.classList.toggle('active', button.dataset.lang === lang));
-  translatable.forEach((node) => {
-    node.textContent = node.dataset[lang];
+  const nextLang = normalizeLanguage(lang);
+
+  document.documentElement.lang = nextLang;
+  document.title = pageTitle[nextLang];
+
+  buttons.forEach((button) => {
+    const isActive = button.dataset.lang === nextLang;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
   });
-  localStorage.setItem('seiga-lang', lang);
+
+  translatable.forEach((node) => {
+    node.textContent = node.dataset[nextLang];
+  });
+
+  ariaTranslatable.forEach((node) => {
+    node.setAttribute('aria-label', node.getAttribute(`data-aria-${nextLang}`));
+  });
+
+  localStorage.setItem('seiga-lang', nextLang);
 }
 
 buttons.forEach((button) => {
@@ -15,4 +39,4 @@ buttons.forEach((button) => {
 });
 
 document.getElementById('year').textContent = new Date().getFullYear();
-setLanguage(localStorage.getItem('seiga-lang') || 'ja');
+setLanguage(localStorage.getItem('seiga-lang'));
