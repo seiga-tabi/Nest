@@ -1,14 +1,16 @@
 const buttons = document.querySelectorAll('[data-lang]');
 const translatable = document.querySelectorAll('[data-ja][data-ko]');
 const ariaTranslatable = document.querySelectorAll('[data-aria-ja][data-aria-ko]');
-const supportedLanguages = ['ko', 'ja'];
+const altTranslatable = document.querySelectorAll('[data-alt-ja][data-alt-ko]');
+const supportedLanguages = ['ja', 'ko'];
+const languageStorageKey = 'seiga-lang-v2';
 const pageTitle = {
   ko: 'Seiga / 서아 링크 모음',
   ja: 'Seiga / 西雅 リンク集',
 };
 
 function normalizeLanguage(lang) {
-  return supportedLanguages.includes(lang) ? lang : 'ko';
+  return supportedLanguages.includes(lang) ? lang : 'ja';
 }
 
 function setLanguage(lang) {
@@ -31,7 +33,11 @@ function setLanguage(lang) {
     node.setAttribute('aria-label', node.getAttribute(`data-aria-${nextLang}`));
   });
 
-  localStorage.setItem('seiga-lang', nextLang);
+  altTranslatable.forEach((node) => {
+    node.setAttribute('alt', node.getAttribute(`data-alt-${nextLang}`));
+  });
+
+  localStorage.setItem(languageStorageKey, nextLang);
 }
 
 buttons.forEach((button) => {
@@ -39,4 +45,4 @@ buttons.forEach((button) => {
 });
 
 document.getElementById('year').textContent = new Date().getFullYear();
-setLanguage(localStorage.getItem('seiga-lang'));
+setLanguage(localStorage.getItem(languageStorageKey));
